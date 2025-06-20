@@ -45,7 +45,7 @@ _Note: We use `--legacy-peer-deps` to avoid dependency conflicts_
    cp .env.example .env.local
    ```
 2. Open `.env.local` in your code editor
-3. **Ask me (Anirudh) for the actual environment variable values** and replace the placeholder values
+3. **Ask me (Ani) for the actual environment variable values** and replace the placeholder values
 
 ## 🎯 Step 4: Run the Development Server
 
@@ -127,7 +127,3 @@ If you run into any issues:
 ## 🎊 You're All Set!
 
 Once everything is running, you should see the Debaite chat interface at `http://localhost:3000`. Happy coding! 🚀
-
----
-
-_Last updated: December 2024_
