@@ -1,0 +1,566 @@
+PRODUCT REQUIREMENTS DOCUMENT
+DEBAITE: AI-POWERED DEBATE PLATFORM
+Version 1.0 | MVP Specification
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+EXECUTIVE SUMMARY
+
+Debaite transforms traditional AI chatbots into an engaging debate platform where two AI agents argue opposing sides of user-submitted topics while a third AI judge evaluates the discussion. The platform makes critical thinking "binge-watchable" through real-time streaming debates that users can watch, share, and learn from.
+
+VISION: "One-click Oxford-style AI debate engine—two GPT agents argue Pro & Con in real time while a third AI judge crowns the winner. Streaming UI makes critical thinking binge-watchable."
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+PROBLEM STATEMENT
+
+Current AI chat applications offer one-dimensional interactions between users and single AI models. This format lacks:
+- Exposure to multiple perspectives on complex topics
+- Structured argumentation and critical thinking frameworks
+- Engaging, shareable content that educates while entertaining
+- Objective evaluation of competing arguments
+
+Educational institutions, debate enthusiasts, and curious individuals need tools that:
+- Present balanced viewpoints on controversial topics
+- Demonstrate quality argumentation techniques
+- Provide impartial evaluation of competing ideas
+- Create viral, educational content for social sharing
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+SOLUTION OVERVIEW
+
+Debaite provides a structured AI debate platform with three core components:
+
+1. DUAL AI DEBATERS: Two GPT-3.5-Turbo agents argue opposing sides (Pro vs Con)
+2. AI JUDGE: Third GPT-3.5-Turbo agent evaluates debate quality and declares winner
+3. STREAMING INTERFACE: Real-time token delivery creates engaging viewing experience
+
+KEY DIFFERENTIATORS:
+- Real-time streaming creates Netflix-like engagement
+- Structured debate format ensures quality arguments
+- Shareable replays enable viral educational content
+- Minimal user input required (just topic submission)
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+TARGET USERS
+
+PRIMARY USERS:
+- Educators: Teachers seeking critical thinking tools for classrooms
+- Debate Enthusiasts: Individuals who enjoy structured argumentation
+- Content Creators: Users seeking shareable, educational content
+- AI Curious: Early adopters interested in novel AI interactions
+
+SECONDARY USERS:
+- Students: Learning argumentation and critical thinking skills
+- Professionals: Exploring different perspectives on business/policy topics
+- Social Media Users: Consuming and sharing engaging AI content
+
+USER PERSONAS:
+
+1. "Sarah the Teacher" (Primary)
+   - Needs: Engaging tools to teach critical thinking
+   - Pain: Difficult to present balanced viewpoints on controversial topics
+   - Gain: Ready-made debates for classroom discussion
+
+2. "Mike the Debate Fan" (Primary)
+   - Needs: High-quality arguments on topics of interest
+   - Pain: Limited access to structured debates on demand
+   - Gain: Unlimited debates on any topic, anytime
+
+3. "Alex the Content Creator" (Primary)
+   - Needs: Shareable, engaging content for social media
+   - Pain: Time-intensive content creation process
+   - Gain: Viral-ready debates generated instantly
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+FEATURES & REQUIREMENTS
+
+MVP SCOPE: 6 Core Features Only
+
+1. TOPIC INPUT SCREEN
+   REQUIREMENTS:
+   - Clean, single-input field for debate topic
+   - Real-time topic validation via OpenAI moderation endpoint
+   - "Start Debate" call-to-action button
+   - 3-5 example topics displayed for inspiration
+   - Topic character limit: 200 characters maximum
+   - Error handling for inappropriate/unsafe topics
+
+   USER STORY: "As a user, I want to easily input any topic and start a debate so that I can explore different perspectives quickly."
+
+2. LIVE DEBATE VIEW
+   REQUIREMENTS:
+   - Side-by-side 50/50 column layout (Pro vs Con)
+   - Real-time token streaming display (<3 second first token)
+   - Clear agent identification (model name + stance badge)
+   - Progress indicators during AI generation
+   - Synchronized scrolling between columns
+   - Responsive design (stacks vertically on mobile - future)
+   - Desktop-optimized for MVP launch
+
+   USER STORY: "As a viewer, I want to watch AI agents debate in real-time so that I feel engaged and entertained throughout the discussion."
+
+3. JUDGE VERDICT PANEL
+   REQUIREMENTS:
+   - Slides up from bottom after final round completion
+   - Displays winning side with clear reasoning
+   - Shows scoring breakdown (Pro vs Con points)
+   - Confetti animation for winner announcement
+   - "Replay Debate" functionality button
+   - "Share This Debate" call-to-action
+   - Verdict length limit: 200 tokens maximum
+
+   USER STORY: "As a user, I want to see an impartial evaluation of the debate so that I understand which arguments were most effective."
+
+4. SHARE & PERSISTENCE
+   REQUIREMENTS:
+   - Unique shareable slug generation (8-character nanoid)
+   - One-click copy link functionality
+   - Read-only replay pages accessible to public
+   - Social media preview optimization (title, description, image)
+   - Public/private debate toggle option
+   - Permanent storage in database
+   - Mobile-friendly replay viewing
+
+   USER STORY: "As a content creator, I want to easily share compelling debates with my audience so that I can engage my followers with educational content."
+
+5. EXAMPLE GALLERY
+   REQUIREMENTS:
+   - Homepage showcase of 5 curated high-quality debates
+   - Topic categorization (Ethics, Technology, Politics, Science, Philosophy)
+   - Thumbnail previews with topic and winner indication
+   - Direct navigation to replay pages
+   - Demonstrates platform capabilities to new users
+   - Quality-controlled content only
+
+   USER STORY: "As a new user, I want to see examples of great debates so that I understand the platform's value before creating my own."
+
+6. AUTHENTICATION
+   REQUIREMENTS:
+   - Leverage existing NextAuth.js implementation
+   - Guest access for viewing shared debates (no account required)
+   - User accounts required for creating new debates
+   - Session management for debate history
+   - Optional social login integration
+   - Privacy controls for debate visibility
+
+   USER STORY: "As a registered user, I want to save my debate history and control who can see my debates so that I can build a personal collection."
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+TECHNICAL REQUIREMENTS
+
+ARCHITECTURE DECISIONS:
+
+1. AI MODEL CONFIGURATION
+   - Debating Models: 2x GPT-3.5-Turbo instances
+   - Judge Model: 1x GPT-3.5-Turbo instance
+   - Temperature: 0.7 (balanced creativity/consistency)
+   - Presence Penalty: 0.3 (encourages rebuttals)
+   - Max Tokens: 300 per turn, 15,000 per session
+   - Hard timeout: 30 seconds per API call
+
+2. DEBATE FLOW STATE MACHINE
+   States: idle → generatingPro → generatingCon → verdict → complete
+   - Sequential API calls only (no parallel processing)
+   - Pro argues first, Con responds with full context
+   - Judge evaluates complete transcript
+   - Fixed 3 rounds per debate (hard-coded)
+
+3. PROMPT ENGINEERING SPECIFICATIONS
+   Pro Agent System Prompt:
+   "You are a skilled debater arguing FOR the proposition: '{topic}'. Your stance is STRICTLY Pro. Never agree with Con arguments. Focus on evidence, logic, and rebuttals. Keep responses under 300 tokens. Current debate context: {history}"
+
+   Con Agent System Prompt:
+   "You are a skilled debater arguing AGAINST the proposition: '{topic}'. Your stance is STRICTLY Con. Never agree with Pro arguments. Focus on evidence, logic, and rebuttals. Keep responses under 300 tokens. Current debate context: {history}"
+
+   Judge System Prompt:
+   "You are an impartial debate judge. Evaluate this debate on: 1) Argument strength and evidence, 2) Rebuttal effectiveness, 3) Logical consistency, 4) Overall persuasiveness. Topic: {topic}. Full transcript: {rounds}. Declare winner and provide reasoning in 200 tokens."
+
+4. DATABASE SCHEMA
+   ```sql
+   CREATE TABLE debate_sessions (
+     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+     topic TEXT NOT NULL,
+     status VARCHAR(20) DEFAULT 'idle',
+     rounds JSONB DEFAULT '[]',
+     verdict JSONB,
+     created_at TIMESTAMP DEFAULT NOW(),
+     user_id UUID REFERENCES users(id),
+     is_public BOOLEAN DEFAULT true,
+     slug VARCHAR(20) UNIQUE
+   );
+   ```
+
+5. API ENDPOINTS
+   - POST /api/debate/create - Initialize new debate session
+   - POST /api/debate/[id]/advance - Progress to next round
+   - GET /api/debate/[id] - Fetch current debate state
+   - GET /api/debate/slug/[slug] - Public debate access
+   - POST /api/moderate/topic - Topic safety validation
+
+6. STREAMING IMPLEMENTATION
+   - Server-Sent Events for real-time token delivery
+   - Client-side EventSource handling
+   - Graceful fallback for connection failures
+   - Progressive text rendering in UI
+
+7. ERROR HANDLING REQUIREMENTS
+   - Model timeout → "⚠️ Model failed to respond. Point forfeited."
+   - Invalid topic → "Topic too sensitive for AI debate today."
+   - API failures → Red banner with graceful degradation
+   - Rate limiting → Sequential call queue management
+
+8. PERFORMANCE REQUIREMENTS
+   - First token delivery: <3 seconds
+   - Debate completion rate: >95%
+   - Model failure rate: <5%
+   - Token cost per debate: <$0.50
+   - Concurrent debates supported: 20+
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+USER EXPERIENCE SPECIFICATIONS
+
+CORE UX PRINCIPLES:
+1. "Streaming is King" - Prioritize smooth token flow over animations
+2. "Immediate Clarity" - Users instantly understand what's happening
+3. "One Polished Moment" - Confetti winner announcement creates delight
+4. "Binge-Watchable" - Debates are entertaining and educational
+
+INTERACTION FLOW:
+1. User enters topic on homepage
+2. Topic moderation check (background)
+3. Debate view loads with skeleton placeholders
+4. Pro agent streams first argument
+5. Con agent streams response (seeing Pro's argument)
+6. Repeat for 3 rounds total
+7. Judge verdict slides up with confetti
+8. Share options prominently displayed
+
+VISUAL DESIGN REQUIREMENTS:
+- Desktop-first responsive design
+- 50/50 column split for Pro vs Con
+- Clear agent identification badges
+- Minimal color palette (focus on content)
+- Subtle animations for state transitions
+- Professional typography for readability
+
+LOADING STATES:
+- "Model is thinking..." during AI generation
+- Skeleton text blocks before content arrives
+- Progress bar for overall debate status
+- Typing indicators during streaming
+
+ERROR STATES:
+- Friendly messaging for all failure scenarios
+- Red banners for technical issues
+- Automatic retry mechanisms where appropriate
+- Clear next steps for user recovery
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+SUCCESS METRICS
+
+TECHNICAL METRICS:
+- Response Time: <3 seconds for first token delivery
+- Reliability: <5% model failure rate
+- Completion: 95% debate completion rate
+- Cost Efficiency: <$0.50 per completed debate
+- Scalability: Support 20+ concurrent debates
+
+USER ENGAGEMENT METRICS:
+- Share Rate: >20% of completed debates shared
+- Session Duration: >5 minutes average
+- Return Rate: >15% users return within 7 days
+- Gallery Engagement: >30% click-through from examples
+- Topic Diversity: >10 unique topic categories per week
+
+BUSINESS METRICS:
+- User Growth: 100 completed debates in first month
+- Organic Reach: 50% of traffic from shared links
+- Cost Control: <$100 total API costs in month 1
+- Quality Score: >4.0/5.0 user rating (future survey)
+
+LEADING INDICATORS:
+- Topic submission rate (users starting debates)
+- Mid-debate abandonment rate (<20% target)
+- Share link click-through rate
+- Example gallery engagement
+
+LAGGING INDICATORS:
+- Monthly active users
+- Debate completion totals
+- Viral coefficient from sharing
+- Revenue potential assessment
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+DEVELOPMENT TIMELINE
+
+14-DAY SPRINT BREAKDOWN:
+
+WEEK 1 (Days 1-7): CORE FUNCTIONALITY
+Day 1-2: Database schema, DebateSession service, API routes
+Day 3-4: AI agent wrappers, streaming implementation, moderation
+Day 5: Judge system, verdict storage
+Day 6-7: Side-by-side UI, streaming components, loading states
+
+WEEK 1 CHECKPOINT: Working Pro vs Con streaming with judge verdict
+
+WEEK 2 (Days 8-14): POLISH & LAUNCH
+Day 8: Error handling, safety features, timeout management
+Day 9: Sharing system, replay pages, slug generation
+Day 10: Example gallery, curated content
+Day 11-12: Confetti animation, analytics, performance optimization
+Day 13: Load testing, QA, cost analysis
+Day 14: Production deployment, demo video
+
+WEEK 2 CHECKPOINT: Complete MVP ready for public launch
+
+CRITICAL PATH DEPENDENCIES:
+1. OpenAI API integration (Day 3) - Blocks all AI functionality
+2. Streaming implementation (Day 4) - Blocks engaging UX
+3. Database schema (Day 2) - Blocks persistence features
+4. Judge system (Day 5) - Blocks verdict functionality
+
+RISK MITIGATION:
+- Scope reduction plan if behind schedule
+- Alternative model providers if OpenAI issues
+- Simplified UI fallbacks for complex features
+- Manual content curation if AI generation fails
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+GO-TO-MARKET STRATEGY
+
+LAUNCH APPROACH:
+1. Soft launch with AI/tech communities (Day 15-21)
+2. Demo video distribution on social platforms (Day 16)
+3. Product Hunt launch (Day 22)
+4. Educational market outreach (Week 4)
+
+TARGET CHANNELS:
+- Twitter AI community (#AI, #ChatGPT hashtags)
+- Reddit (r/artificial, r/MachineLearning, r/debatealtright)
+- Product Hunt featured launch
+- Educational technology forums
+- Content creator networks
+
+DEMO SCRIPT:
+1. Enter topic: "Is Mars colonization ethical?"
+2. Watch Pro argument stream in <3 seconds
+3. Con responds with compelling counter-argument
+4. 3 rounds of escalating debate quality
+5. Judge declares winner with detailed reasoning
+6. Confetti celebration + share link generation
+7. Demonstrate public replay functionality
+
+CONTENT STRATEGY:
+- Curated example debates on trending topics
+- "Best of" debate collections
+- Educational use case documentation
+- Social media clips of compelling moments
+
+VIRAL MECHANICS:
+- Shareable replay links with social previews
+- "This AI debate will change your mind about X"
+- Topic suggestion crowdsourcing
+- Community voting on debate quality
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+RISK ASSESSMENT
+
+HIGH-RISK ITEMS:
+
+1. AI MODEL BEHAVIOR (Probability: Medium, Impact: High)
+   Risk: Models agree instead of debate, go off-topic, or produce low-quality arguments
+   Mitigation: Extensive prompt engineering, penalty systems, fallback prompts
+
+2. TECHNICAL PERFORMANCE (Probability: Low, Impact: High)  
+   Risk: Streaming failures, API timeouts, poor user experience
+   Mitigation: Robust error handling, sequential API calls, performance monitoring
+
+3. CONTENT SAFETY (Probability: Medium, Impact: High)
+   Risk: Inappropriate topics, biased outputs, harmful content generation
+   Mitigation: OpenAI moderation endpoint, human content review, user reporting
+
+4. COST OVERRUNS (Probability: Medium, Impact: Medium)
+   Risk: Unexpected API usage, expensive model calls, scaling costs
+   Mitigation: Token limits, usage monitoring, cost alerts, tiered access
+
+MEDIUM-RISK ITEMS:
+
+5. USER ADOPTION (Probability: Medium, Impact: Medium)
+   Risk: Poor product-market fit, low engagement, limited sharing
+   Mitigation: Strong example gallery, viral sharing features, community building
+
+6. COMPETITIVE RESPONSE (Probability: Low, Impact: Medium)
+   Risk: Large players copy concept, feature parity from competitors
+   Mitigation: First-mover advantage, rapid iteration, unique positioning
+
+LOW-RISK ITEMS:
+
+7. TECHNICAL DEBT (Probability: High, Impact: Low)
+   Risk: Quick MVP development creates maintenance issues
+   Mitigation: Clean architecture decisions, documentation, refactoring plan
+
+8. REGULATORY ISSUES (Probability: Low, Impact: Low)
+   Risk: AI content regulations, educational compliance requirements  
+   Mitigation: Clear AI-generated disclaimers, educational use positioning
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+FUTURE ROADMAP (POST-MVP)
+
+V2 IMMEDIATE FEATURES (Month 2-3):
+- Mobile responsive design optimization
+- Live round-by-round judge commentary
+- Custom evaluation criteria input
+- User interjection capability ("Moderator mode")
+- Advanced topic categorization and search
+
+V3 ADVANCED FEATURES (Month 4-6):
+- Multiple judge consensus system
+- Model vs Model tournaments
+- Integration with alternative AI providers (Claude, Llama)
+- Community voting and rating system
+- Advanced analytics dashboard
+
+V4 PLATFORM FEATURES (Month 7-12):
+- User-generated content tools
+- Debate challenge system
+- Educational institution partnerships
+- API for third-party integrations
+- Premium subscription model
+
+LONG-TERM VISION (Year 2+):
+- AI debate coaching and training
+- Real-time human vs AI debates
+- Virtual debate tournaments
+- Educational curriculum integration
+- Enterprise debate training platform
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+ACCEPTANCE CRITERIA
+
+MVP LAUNCH REQUIREMENTS:
+
+FUNCTIONAL REQUIREMENTS:
+✓ Users can input debate topics and receive moderation feedback
+✓ Two AI agents debate opposing sides in real-time streaming format
+✓ Judge agent evaluates complete debates and declares winners
+✓ Debates are saved with shareable links for public replay
+✓ Example gallery showcases 5 high-quality curated debates
+✓ User authentication enables debate history and privacy controls
+
+PERFORMANCE REQUIREMENTS:
+✓ First token delivery within 3 seconds of round start
+✓ 95% successful debate completion rate
+✓ <5% AI model failure rate
+✓ Support for 20+ concurrent active debates
+✓ <$0.50 API cost per completed debate
+
+QUALITY REQUIREMENTS:
+✓ AI agents maintain opposing stances throughout debates
+✓ Judge verdicts are balanced and well-reasoned
+✓ All UI copy is clear and encouraging
+✓ Error states provide helpful user guidance
+✓ Mobile viewing of shared debates functions correctly
+
+BUSINESS REQUIREMENTS:
+✓ Demo video showcases complete user flow effectively
+✓ Sharing mechanism drives measurable link clicks
+✓ Example gallery demonstrates platform value to new users
+✓ Cost monitoring and usage alerts are implemented
+✓ Analytics tracking for key engagement metrics
+
+LAUNCH READINESS:
+✓ Production deployment with SSL and security
+✓ Domain setup and DNS configuration
+✓ Social media preview optimization
+✓ Error monitoring and alerting systems
+✓ Customer support documentation prepared
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+APPENDIX
+
+TECHNICAL SPECIFICATIONS:
+
+Technology Stack:
+- Frontend: Next.js 15, React 19, TypeScript, Tailwind CSS
+- Backend: Next.js API routes, Server Actions
+- Database: PostgreSQL with Drizzle ORM
+- AI Integration: OpenAI GPT-3.5-Turbo via AI SDK
+- Authentication: NextAuth.js (existing implementation)
+- Deployment: Vercel with environment variable management
+- Monitoring: Vercel Analytics, custom debate metrics
+
+Model Configuration Details:
+- Model: gpt-3.5-turbo
+- Max Tokens: 300 (debaters), 200 (judge)
+- Temperature: 0.7 
+- Presence Penalty: 0.3
+- Frequency Penalty: 0.0
+- Top P: 1.0
+- Timeout: 30 seconds hard limit
+
+Database Schema Details:
+```sql
+-- Full schema expansion
+CREATE TABLE debate_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  topic TEXT NOT NULL CHECK (length(topic) <= 200),
+  status VARCHAR(20) DEFAULT 'idle' CHECK (status IN ('idle', 'generatingPro', 'generatingCon', 'verdict', 'complete')),
+  rounds JSONB DEFAULT '[]',
+  verdict JSONB,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  user_id UUID REFERENCES users(id),
+  is_public BOOLEAN DEFAULT true,
+  slug VARCHAR(20) UNIQUE NOT NULL,
+  token_usage INTEGER DEFAULT 0,
+  cost_estimate DECIMAL(10,4) DEFAULT 0.00
+);
+
+CREATE INDEX idx_debate_sessions_slug ON debate_sessions(slug);
+CREATE INDEX idx_debate_sessions_user_id ON debate_sessions(user_id);
+CREATE INDEX idx_debate_sessions_public ON debate_sessions(is_public) WHERE is_public = true;
+```
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+DOCUMENT CONTROL
+
+Document Version: 1.0
+Created: [Current Date]
+Last Updated: [Current Date]
+Next Review: Post-MVP Launch (Day 21)
+
+Authors:
+- Product Strategy: Joint Development
+- Technical Architecture: [Primary Developer]
+- Content Strategy: [Content Partner]
+
+Approval Required From:
+- Technical Lead: [Primary Developer]
+- Content Lead: [Content Partner]
+- Project Stakeholders: [As Applicable]
+
+Distribution:
+- Development Team
+- Content Strategy Team
+- Project Stakeholders
+- Future Investors/Partners
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+This PRD serves as the definitive specification for Debaite MVP development and launch. All feature decisions, technical implementations, and success measurements should reference this document as the single source of truth.
+
+Ready to transform AI chat into the future of critical thinking education! 🚀 
